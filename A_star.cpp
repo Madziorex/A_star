@@ -170,6 +170,7 @@ vector<pair<int, int>> astar(const vector<vector<int>>& grid, pair<int, int> sta
 
 int main()
 {
+
     auto mapa = WczytajGrid();
     Rysuj(mapa);
 
