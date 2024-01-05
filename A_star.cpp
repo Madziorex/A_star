@@ -183,7 +183,6 @@ int main()
 
     auto wynik = astar(mapa, start, goal);
     Rysuj(mapa, wynik);
-    int madzia = 12;
 
     return 0;
 }
