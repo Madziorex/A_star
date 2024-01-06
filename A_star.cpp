@@ -81,18 +81,17 @@ struct CompareNodes {
     }
 };
 
-vector<pair<int, int>> astar(const vector<vector<int>>& grid, pair<int, int> start, pair<int, int> goal) {
+vector<pair<int, int>> astar(const vector<vector<int>>& grid, pair<int, int> start, pair<int, int> cel) {
     if (grid[start.first][start.second] == 5) {
         return {};
     }
 
-    if (grid[goal.first][goal.second] == 5) {
+    if (grid[cel.first][cel.second] == 5) {
         return {};
     }
 
-    // Wymiary planszy
-    int rows = grid.size();
-    int cols = grid[0].size();
+    int wiersze = grid.size();
+    int kolumny = grid[0].size();
 
     // Kolejka priorytetowa do przechowywania węzłów
     priority_queue<Node*, vector<Node*>, CompareNodes> openSet;
@@ -102,7 +101,7 @@ vector<pair<int, int>> astar(const vector<vector<int>>& grid, pair<int, int> sta
     openSet.push(startNode);
 
     // Tablica odwiedzonych węzłów
-    vector<vector<bool>> visited(rows, vector<bool>(cols, false));
+    vector<vector<bool>> visited(wiersze, vector<bool>(kolumny, false));
     visited[start.first][start.second] = true;
 
     // Szukamy ścieżki
@@ -112,7 +111,7 @@ vector<pair<int, int>> astar(const vector<vector<int>>& grid, pair<int, int> sta
         openSet.pop();
 
         // Sprawdzamy, czy osiągnęliśmy cel
-        if (currentNode->x == goal.first && currentNode->y == goal.second) {
+        if (currentNode->x == cel.first && currentNode->y == cel.second) {
             // Odtwarzamy ścieżkę
             vector<pair<int, int>> path;
             while (currentNode != nullptr) {
@@ -143,10 +142,10 @@ vector<pair<int, int>> astar(const vector<vector<int>>& grid, pair<int, int> sta
             int y = neighbor.second;
 
             // Sprawdzamy, czy sąsiad jest w granicach planszy i nie jest przeszkodą
-            if (x >= 0 && x < rows && y >= 0 && y < cols && grid[x][y] != 5 && !visited[x][y]) {
+            if (x >= 0 && x < wiersze && y >= 0 && y < kolumny && grid[x][y] != 5 && !visited[x][y]) {
                 // Tworzymy węzeł dla sąsiada
                 int cost = currentNode->koszt + 1;  // Założenie: koszt do każdego sąsiada jest równy 1
-                int heuristic = abs(x - goal.first) + abs(y - goal.second);  // Heurystyka (np. odległość Manhattan)
+                int heuristic = abs(x - cel.first) + abs(y - cel.second);  // Heurystyka (np. odległość Manhattan)
                 Node* neighborNode = new Node(x, y, cost, heuristic, currentNode);
 
                 // Dodajemy sąsiada do kolejki priorytetowej
@@ -177,11 +176,11 @@ int main()
     start.first = 0;
     start.second = 0;
 
-    pair<int, int> goal;
-    goal.first = 19;
-    goal.second = 19;
+    pair<int, int> cel;
+    cel.first = 19;
+    cel.second = 19;
 
-    auto wynik = astar(mapa, start, goal);
+    auto wynik = astar(mapa, start, cel);
     Rysuj(mapa, wynik);
 
     return 0;
