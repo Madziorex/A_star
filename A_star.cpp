@@ -75,7 +75,7 @@ public:
     }
 };
 
-struct CompareNodes {
+struct PorownajNode {
     bool operator()(Node* a, Node* b) {
         return a->przelicz() > b->przelicz();
     }
@@ -93,71 +93,57 @@ vector<pair<int, int>> astar(const vector<vector<int>>& grid, pair<int, int> sta
     int wiersze = grid.size();
     int kolumny = grid[0].size();
 
-    // Kolejka priorytetowa do przechowywania węzłów
-    priority_queue<Node*, vector<Node*>, CompareNodes> openSet;
+    priority_queue<Node*, vector<Node*>, PorownajNode> openSet;
 
-    // Tworzymy węzeł startowy
     Node* startNode = new Node(start.first, start.second, 0, 0, nullptr);
     openSet.push(startNode);
 
-    // Tablica odwiedzonych węzłów
-    vector<vector<bool>> visited(wiersze, vector<bool>(kolumny, false));
-    visited[start.first][start.second] = true;
+    vector<vector<bool>> odwiedzone(wiersze, vector<bool>(kolumny, false));
+    odwiedzone[start.first][start.second] = true;
 
-    // Szukamy ścieżki
     while (!openSet.empty()) {
-        // Pobieramy węzeł z najniższym kosztem
-        Node* currentNode = openSet.top();
+        Node* odecnyNode = openSet.top();
         openSet.pop();
 
-        // Sprawdzamy, czy osiągnęliśmy cel
-        if (currentNode->x == cel.first && currentNode->y == cel.second) {
-            // Odtwarzamy ścieżkę
-            vector<pair<int, int>> path;
-            while (currentNode != nullptr) {
-                path.push_back({ currentNode->x, currentNode->y });
-                currentNode = currentNode->rodzic;
+        if (odecnyNode->x == cel.first && odecnyNode->y == cel.second) {
+            vector<pair<int, int>> sciezka;
+            while (odecnyNode != nullptr) {
+                sciezka.push_back({ odecnyNode->x, odecnyNode->y });
+                odecnyNode = odecnyNode->rodzic;
             }
-            reverse(path.begin(), path.end());
+            reverse(sciezka.begin(), sciezka.end());
 
-            // Zwolniamy pamięć z zajętą przez węzły
             while (!openSet.empty()) {
                 delete openSet.top();
                 openSet.pop();
             }
 
-            return path;
+            return sciezka;
         }
 
-        // Przeglądamy sąsiadów aktualnego węzła
-        vector<pair<int, int>> neighbors = {
-            {currentNode->x - 1, currentNode->y},
-            {currentNode->x + 1, currentNode->y},
-            {currentNode->x, currentNode->y - 1},
-            {currentNode->x, currentNode->y + 1}
+        vector<pair<int, int>> sasiedzi = {
+            {odecnyNode->x - 1, odecnyNode->y},
+            {odecnyNode->x + 1, odecnyNode->y},
+            {odecnyNode->x, odecnyNode->y - 1},
+            {odecnyNode->x, odecnyNode->y + 1}
         };
 
-        for (const auto& neighbor : neighbors) {
-            int x = neighbor.first;
-            int y = neighbor.second;
+        for (const auto& sasiad : sasiedzi) {
+            int x = sasiad.first;
+            int y = sasiad.second;
 
-            // Sprawdzamy, czy sąsiad jest w granicach planszy i nie jest przeszkodą
-            if (x >= 0 && x < wiersze && y >= 0 && y < kolumny && grid[x][y] != 5 && !visited[x][y]) {
-                // Tworzymy węzeł dla sąsiada
-                int cost = currentNode->koszt + 1;  // Założenie: koszt do każdego sąsiada jest równy 1
-                int heuristic = abs(x - cel.first) + abs(y - cel.second);  // Heurystyka (np. odległość Manhattan)
-                Node* neighborNode = new Node(x, y, cost, heuristic, currentNode);
+            if (x >= 0 && x < wiersze && y >= 0 && y < kolumny && grid[x][y] != 5 && !odwiedzone[x][y]) {
+                int koszt = odecnyNode->koszt + 1;
+                int heurystyka = abs(x - cel.first) + abs(y - cel.second);
+                Node* sasiadNode = new Node(x, y, koszt, heurystyka, odecnyNode);
 
-                // Dodajemy sąsiada do kolejki priorytetowej
-                openSet.push(neighborNode);
+                openSet.push(sasiadNode);
 
-                // Oznaczamy sąsiada jako odwiedzonego
-                visited[x][y] = true;
+                odwiedzone[x][y] = true;
             }
         }
     }
 
-    // Zwolniamy pamięć z zajętą przez węzły
     while (!openSet.empty()) {
         delete openSet.top();
         openSet.pop();
